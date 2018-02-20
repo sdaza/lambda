@@ -53,7 +53,7 @@ plot_posterior_w = function(stan_model_list, w, x, y, pred_name='y_pred', ylabel
         preds[[i]] =  extract(stan_model_list[[i]], pred_name)[[1]]    
     }
     
-    ypred = matrix(0, nrow(b), ncol(a))
+    ypred = matrix(0, nrow(preds[[1]]), ncol(preds[[1]]))
 
     for (i in 1:nmodels) { 
         temp =  w[i] * preds[[i]]
