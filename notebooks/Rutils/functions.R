@@ -12,14 +12,19 @@ plot_predictions = function (x, y, pred) {
 
 
 # plot function for posterior
-plot_posterior = function(stan_model, x, y, pred_name='y_pred', ylabel='y ', xlabel='x',
-                          prob=0.90) {
+plot_posterior = function(model, x, y, pred_name='y_pred', ylabel='y ', xlabel='x',
+                          prob=0.90, type='stan') {
     
-    ypred = extract(stan_model, pred_name)[[1]]
+    if (type == 'stan' ) {
+        ypred = extract(model, pred_name)[[1]]
+    }
+    if (type == 'matrix') {
+        ypred = model 
+    }
     
-    m =  as.vector(apply(ypred, 2, median))
-    lo = as.vector(apply(ypred, 2, function(x) quantile(x, prob=(1-prob))))
-    hi = as.vector(apply(ypred, 2, function(x) quantile(x, prob=prob)))
+    m =  as.vector(apply(ypred, 2, median, na.rm=TRUE))
+    lo = as.vector(apply(ypred, 2, function(x) quantile(x, prob=(1-prob), na.rm = TRUE)))
+    hi = as.vector(apply(ypred, 2, function(x) quantile(x, prob=prob, na.rm = TRUE)))
         
     dat = data.frame(y, x, m, lo, hi)
     
