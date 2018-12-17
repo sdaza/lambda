@@ -1,5 +1,10 @@
-
+# project: lambda
+# author: sebastian
 # run models in iteration
+
+# run at linstat
+# R < /home/s/sdaza/00projects/lambda/src/le_boostrap_1900_uniform_prob.R > /home/s/sdaza/00projects/lambda/src/le_boostrap_1900_uniform_prob.log  --no-save  &
+
 
 library(doParallel)
 library(data.table)
@@ -8,7 +13,7 @@ cl = makeCluster(15)
 registerDoParallel(cl)
 seed = 103231
 
-df = fread('/home/s/sdaza/00projects/lambda/data/bs_samples.csv')
+df = fread('/home/s/sdaza/00projects/lambda/data/bs_samples_uniform.csv')
 setorder(df, ctry, year)
 
 country_labels = c("Argentina", "Bolivia", "Brazil", "Chile", "Colombia",
@@ -16,9 +21,10 @@ country_labels = c("Argentina", "Bolivia", "Brazil", "Chile", "Colombia",
                "El_Salvador", "Guatemala", "Honduras", "Mexico", "Nicaragua",
                "Panama", "Paraguay", "Peru", "Uruguay", "Venezuela")
 
+sample_size = max(df$sample_index)
 
 
-results = foreach(i=1:100) %dopar% {
+results = foreach(i=1:sample_size) %dopar% {
 
     library(data.table)
     library(brms)
@@ -30,9 +36,13 @@ results = foreach(i=1:100) %dopar% {
     prior = set_prior("normal(0, 5)", class = "b")
 
     test = copy(df[sample_index==i])
-    test[, y := le/max(le+1.05), by = ctry] # adjustment is by country!
+
+    # adjustment is by country!
+    test[, y := le/max(le+1.05), by = ctry]
     test[, wy := log(-log(1-y))]
-    test[, max_le := max(le+1.05), by = ctry] # to recover values later
+
+    # to recover values later
+    test[, max_le := max(le+1.05), by = ctry]
 
     m1.1 = brm(formula = wy ~ 1 + igdp_log  + (igdp_log|ctry_year),
            data = test,
@@ -84,4 +94,4 @@ results = foreach(i=1:100) %dopar% {
 }
 
 r = rbindlist(results, idcol='sample_index')
-saveRDS(r, "/home/s/sdaza/00projects/lambda/output/shifts_1900.rds")
+saveRDS(r, "/home/s/sdaza/00projects/lambda/output/shifts_1900_uniform.rds")

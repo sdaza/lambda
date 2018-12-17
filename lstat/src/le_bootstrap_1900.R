@@ -1,5 +1,9 @@
-
+# project: lambda
+# author: sebastian
 # run models in iteration
+
+# run at linstat
+# R < /home/s/sdaza/00projects/lambda/src/le_boostrap_1900_uniform_prob.R > /home/s/sdaza/00projects/lambda/src/le_boostrap_1900_uniform_prob.log  --no-save  &
 
 library(doParallel)
 library(data.table)
@@ -16,9 +20,9 @@ country_labels = c("Argentina", "Bolivia", "Brazil", "Chile", "Colombia",
                "El_Salvador", "Guatemala", "Honduras", "Mexico", "Nicaragua",
                "Panama", "Paraguay", "Peru", "Uruguay", "Venezuela")
 
+sample_size = max(df$sample_index)
 
-
-results = foreach(i=1:100) %dopar% {
+results = foreach(i=1:sample_size) %dopar% {
 
     library(data.table)
     library(brms)
