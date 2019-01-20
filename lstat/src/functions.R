@@ -12,7 +12,7 @@ get_orig_values_weibull = function(x, max_value) {
 # shifts with stacking for only one country (auxiliary function)
 estimate_shift = function(models=NULL, # list
                           ps=NULL, # list, posterior samples
-                          posterior_nsample=500,
+                          posterior_nsample=10000,
                           data=NULL, # data.table
                           country=NULL, # string
                           obs_var = NULL,
@@ -79,8 +79,8 @@ estimate_shift = function(models=NULL, # list
         # using observed values!
         cf = mt %*% as.vector(as.matrix(dt)) # counterfactual
 
-        if (transform) { 
-            cf = unlist(sapply(cf, function(x) get_orig_values_weibull(x, max_value=max_le))) 
+        if (transform) {
+            cf = unlist(sapply(cf, function(x) get_orig_values_weibull(x, max_value=max_le)))
                                }
         else { cf = cf[,1] }
 
