@@ -12,7 +12,7 @@ get_orig_values_weibull = function(x, max_value) {
 # shifts with stacking for only one country (auxiliary function)
 estimate_shift = function(models=NULL, # list
                           ps=NULL, # list, posterior samples
-                          posterior_nsample=10000,
+                          posterior_nsample=500,
                           data=NULL, # data.table
                           country=NULL, # string
                           obs_var = NULL,
