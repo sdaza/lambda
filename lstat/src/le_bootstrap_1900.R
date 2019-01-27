@@ -3,7 +3,7 @@
 # run models in iteration
 
 # run at linstat
-# R < /home/s/sdaza/00projects/lambda/src/le_boostrap_1900_uniform_prob.R > /home/s/sdaza/00projects/lambda/src/le_boostrap_1900_uniform_prob.log  --no-save  &
+# R < /home/s/sdaza/00projects/lambda/src/le_boostrap_1900.R > /home/s/sdaza/00projects/lambda/src/le_boostrap_1900.log  --no-save  &
 
 library(doParallel)
 library(data.table)
@@ -12,7 +12,7 @@ cl = makeCluster(15)
 registerDoParallel(cl)
 seed = 103231
 
-df = fread('/home/s/sdaza/00projects/lambda/data/bs_samples.csv')
+df = fread('00projects/lambda/data/bs_samples.csv')
 setorder(df, ctry, year)
 
 country_labels = c("Argentina", "Bolivia", "Brazil", "Chile", "Colombia",
@@ -22,14 +22,22 @@ country_labels = c("Argentina", "Bolivia", "Brazil", "Chile", "Colombia",
 
 sample_size = max(df$sample_index)
 
-results = foreach(i=1:sample_size) %dopar% {
+multiResultClass = function(result1=NULL,result2=NULL) {
+  me = list(result1 = result1,result2 = result2)
+  class(me) = append(class(me),"multiResultClass")
+  return(me)
+}
+
+output = foreach(i=1:sample_size) %dopar% {
+
+    result = multiResultClass()
 
     library(data.table)
     library(brms)
     library(loo)
     library(stringr)
     library(texreg)
-    source('/home/s/sdaza/00projects/lambda/src/functions.R')
+    source('00projects/lambda/src/functions.R')
 
     prior = set_prior("normal(0, 5)", class = "b")
 
@@ -75,8 +83,9 @@ results = foreach(i=1:sample_size) %dopar% {
     models  = list(m1.1, m1.2, m1.3, m1.4)
     loo_list = list(loo1.1, loo1.2, loo1.3, loo1.4)
     model_weights = as.vector(loo_model_weights(loo_list))
+    result$result1 = model_weights
 
-    compute_shifts(models = models,
+    result$result2 = compute_shifts(models = models,
                    weights = model_weights,
                    posterior_nsample = 100,
                    data = test,
@@ -85,7 +94,10 @@ results = foreach(i=1:sample_size) %dopar% {
                    countries = country_labels,
                    years = c(1930, 1950, 1970, 1990, 2010))
 
+    return(result)
+
 }
 
-r = rbindlist(results, idcol='sample_index')
-saveRDS(r, "/home/s/sdaza/00projects/lambda/output/shifts_1900.rds")
+# r = rbindlist(output[[1]]$result2, idcol='sample_index')
+saveRDS(output, "00projects/lambda/output/results_shifts_1900.rds")
+# saveRDS(output[[1]]$result1, "00projects/lambda/output/model_weights_shifts_1900.rds")
