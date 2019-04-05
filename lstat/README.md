@@ -15,5 +15,6 @@
 ### output
 
 - `tables` include output tables (also in our lambda file in overleaf)
-- `file_description` includes description of all the output files - `tables` include output tables (also in our lambda file in overleaf)
+- `file_description` includes description of all the output files 
+- `tables` include output tables (also in our lambda file in overleaf)
 
